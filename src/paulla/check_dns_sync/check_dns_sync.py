@@ -13,7 +13,7 @@ from operator import itemgetter
 def query_from_authority(zone):
     executable = "dig"
     parameters_from_authority = "+nssearch"
-    proc = subprocess.run([executable,zone,parameters_from_authority],
+    proc = subprocess.run([executable, zone, parameters_from_authority],
                           stdout=subprocess.PIPE,
                           encoding="UTF-8")
     answers = proc.stdout
@@ -21,7 +21,7 @@ def query_from_authority(zone):
         raise nagiosplugin.CheckError("A server timed out")
 
     answers = answers.strip().splitlines()
-    return [ (int(arguments[3]), arguments[10]) for arguments in (answer.split in answers)]
+    return [(int(arguments[3]), arguments[10]) for arguments in (answer.split in answers)]
 
 
 def query(zone, nameserver):
@@ -34,8 +34,9 @@ def query(zone, nameserver):
                           encoding='UTF-8')
     answer = proc.stdout
     if answer.find("timed out") >= 0:
-        raise nagiosplugin.CheckError("%s timed out" %nameserver)
+        raise nagiosplugin.CheckError("%s timed out" % nameserver)
     return (int(answer.split()[2]), nameserver)
+
 
 class CheckDnsSync(nagiosplugin.Resource):
     """docstring for CheckDnsSync."""
@@ -50,11 +51,14 @@ class CheckDnsSync(nagiosplugin.Resource):
         else:
             serials = [query(self.zone, nameserver) for nameserver in self.nameservers]
 
-
         serials.sort(reverse=True)
-        for serial,server in serials:
+        for serial, server in serials:
             deltaSerial = serials[0][0] - serial
-            yield nagiosplugin.Metric(server, deltaSerial, min=0, context="serial", uom=" version behind")
+            yield nagiosplugin.Metric(server,
+                                      deltaSerial,
+                                      min=0,
+                                      context="serial",
+                                      uom=" version behind")
 
 
 class AuditSummary(nagiosplugin.Summary):
@@ -68,15 +72,17 @@ class AuditSummary(nagiosplugin.Summary):
     def problem(self, results):
         if results.most_significant_state.code == 3:
             return results.first_significant.hint
-        else :
+        else:
             if self.displayMetrics:
                 message = ''
                 for result in results.most_significant:
-                    message = message + (result.metric.name+" "+str(result.metric.value)+result.metric.uom+" ")
+                    message = message + (result.metric.name+" "
+                                         + str(result.metric.value)
+                                         + result.metric.uom+" ")
             else:
                 message = ','
                 message = message.join(sorted((result.metric.name for result
-                                          in results.most_significant)))
+                                               in results.most_significant)))
                 message = message + " are behind"
 
             return message
@@ -87,10 +93,12 @@ def parse_args():
     argp.add_argument('-v', '--verbose', action='count', default=0,
                       help='increase output verbosity (use up to 3 times)')
     argp.add_argument('-z', '--zone', help='address of zone to test', required=True)
-    argp.add_argument('--use-ns', dest="fromAuthority", action="store_true", help="Query the ns from the zone's authority (NS field)")
+    argp.add_argument('--use-ns', dest="fromAuthority", action="store_true",
+                      help="Query the ns from the zone's authority (NS field)")
     argp.add_argument('--no-use-ns', dest="fromAuthority", action="store_false")
     argp.set_defaults(fromAuthority=True)
-    argp.add_argument('-ns', '--nameservers', help="Specify the ns to query to", nargs='*', default=[])
+    argp.add_argument('-ns', '--nameservers', nargs='*', default=[],
+                      help="Specify the ns to query to")
     argp.add_argument('-m', '--metric', help="Display how many version behind", action="store_true")
     return argp.parse_args()
 
