@@ -14,6 +14,7 @@ parameters = "+short"
 
 
 def query_from_authority(zone):
+    """Send query using external tool to fetch serial from NS servers of the zone"""
     proc = subprocess.run([executable, zone]+parameters_from_authority.split(),
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE,
@@ -29,6 +30,7 @@ def query_from_authority(zone):
 
 
 def query(zone, nameserver):
+    """Send query using external tool to fetch serial from provided server"""
     query = "{0} SOA @{1}".format(zone, nameserver)
     proc = subprocess.run([executable, zone, 'SOA', '@'+nameserver] + parameters.split(),
                           stdout=subprocess.PIPE,
@@ -46,13 +48,14 @@ def query(zone, nameserver):
 
 
 class CheckDnsSync(nagiosplugin.Resource):
-    """docstring for CheckDnsSync."""
+    """Check nameserver syncronisation plugin"""
     def __init__(self, zone, nameservers=[], fromAuthority=True):
         self.zone = zone
         self.fromAuthority = fromAuthority
         self.nameservers = nameservers
 
     def probe(self):
+        """Get serial of servers using asked method"""
         if self.fromAuthority:
             serials = query_from_authority(self.zone)
         else:
