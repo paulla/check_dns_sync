@@ -23,6 +23,7 @@ long_description = '\n\n'.join([read_file(*pathes) for pathes in desc_files])
 
 install_requires=['nagiosplugin']
 
+extras_require = {'test': ['setuptools', 'mock']}
 
 setup(name='paulla.check_dns_sync',
       version=version,
