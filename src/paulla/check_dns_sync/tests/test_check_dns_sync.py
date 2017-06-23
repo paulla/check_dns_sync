@@ -37,6 +37,12 @@ class Test__query_from_authority(unittest.TestCase):
             with self.assertRaises(CheckError):
                 method("example.com")
 
+    def test__invalid_zone(self):
+        with self.assertRaises(CheckError) as context:
+            check_dns_sync.query_from_authority("invalid,domain")
+
+        self.assertTrue("No result. Domain probably does not exist" in str(context.exception))
+
     def test__dig_reply(self):
         method = check_dns_sync.query_from_authority
         mocked = "paulla.check_dns_sync.check_dns_sync.subprocess"
@@ -193,7 +199,7 @@ class Test_AuditSummary(unittest.TestCase):
         sum_crit = summary.problem(results)
         self.assertEqual(sum_crit, message)
 
-    def test_problem_crit_metric(self):
+    def test_problem_crit_non_metric(self):
         from nagiosplugin.result import Result, Results
         from nagiosplugin.state import Critical
         from paulla.check_dns_sync.check_dns_sync import AuditSummary
