@@ -8,11 +8,13 @@ import nagiosplugin
 import subprocess
 import argparse
 
+executable = "dig"
+parameters_from_authority = "+nssearch"
+parameters = "+short"
+
 
 def query_from_authority(zone):
-    executable = "dig"
-    parameters_from_authority = "+nssearch"
-    proc = subprocess.run([executable, zone, parameters_from_authority],
+    proc = subprocess.run([executable, zone]+parameters_from_authority.split(),
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE,
                           encoding="UTF-8")
@@ -28,10 +30,7 @@ def query_from_authority(zone):
 
 def query(zone, nameserver):
     query = "{0} SOA @{1}".format(zone, nameserver)
-    executable = "dig"
-    parameters = "+short"
-
-    proc = subprocess.run([executable, zone, 'SOA', '@'+nameserver, parameters],
+    proc = subprocess.run([executable, zone, 'SOA', '@'+nameserver] + parameters.split(),
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE,
                           encoding='UTF-8')
@@ -48,7 +47,7 @@ def query(zone, nameserver):
 
 class CheckDnsSync(nagiosplugin.Resource):
     """docstring for CheckDnsSync."""
-    def __init__(self, zone, nameservers, fromAuthority=True):
+    def __init__(self, zone, nameservers=[], fromAuthority=True):
         self.zone = zone
         self.fromAuthority = fromAuthority
         self.nameservers = nameservers
