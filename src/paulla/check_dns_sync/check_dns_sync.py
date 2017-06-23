@@ -7,7 +7,6 @@ import nagiosplugin
 
 import subprocess
 import argparse
-from operator import itemgetter
 
 
 def query_from_authority(zone):
@@ -15,13 +14,16 @@ def query_from_authority(zone):
     parameters_from_authority = "+nssearch"
     proc = subprocess.run([executable, zone, parameters_from_authority],
                           stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
                           encoding="UTF-8")
     answers = proc.stdout
     if answers.find("timed out") >= 0:
         raise nagiosplugin.CheckError("A server timed out")
+    if not len(answers):
+        raise nagiosplugin.CheckError("No result. Domain probably does not exist")
 
     answers = answers.strip().splitlines()
-    return [(int(arguments[3]), arguments[10]) for arguments in (answer.split in answers)]
+    return [(int(arguments[3]), arguments[10]) for arguments in (answer.split() for answer in answers)]
 
 
 def query(zone, nameserver):
@@ -31,10 +33,16 @@ def query(zone, nameserver):
 
     proc = subprocess.run([executable, zone, 'SOA', '@'+nameserver, parameters],
                           stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
                           encoding='UTF-8')
     answer = proc.stdout
     if answer.find("timed out") >= 0:
         raise nagiosplugin.CheckError("%s timed out" % nameserver)
+    if proc.stderr:
+        raise nagiosplugin.CheckError("Dig returned an error: %s" % proc.stderr)
+    if not len(answer):
+        raise nagiosplugin.CheckError("No result. Domain probably does not exist")
+
     return (int(answer.split()[2]), nameserver)
 
 
