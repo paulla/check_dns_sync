@@ -25,7 +25,7 @@ install_requires=['nagiosplugin']
 
 extras_require = {'test': ['setuptools', 'mock']}
 
-setup(name='paulla.check_dns_sync',
+setup(name='check_dns_sync',
       version=version,
       description="A nagios-like plugin to check if zone is synced accross dns servers",
       long_description=long_description,
@@ -50,7 +50,7 @@ setup(name='paulla.check_dns_sync',
       entry_points="""
       # -*- Entry points: -*-
       [console_scripts]
-      check_dns_sync = paulla.check_dns_sync:main
+      check_dns_sync = check_dns_sync:main
       """,
       )
 

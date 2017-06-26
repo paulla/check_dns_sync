@@ -8,7 +8,7 @@ import nagiosplugin
 from nagiosplugin import CheckError
 from nagiosplugin.metric import Metric
 
-from paulla.check_dns_sync import check_dns_sync
+from check_dns_sync import check_dns_sync
 
 
 class Test__query_from_authority(unittest.TestCase):
@@ -31,7 +31,7 @@ class Test__query_from_authority(unittest.TestCase):
 
     def test__dig_time_out(self):
         method = check_dns_sync.query_from_authority
-        mocked = "paulla.check_dns_sync.check_dns_sync.subprocess"
+        mocked = "check_dns_sync.check_dns_sync.subprocess"
         with mock.patch(mocked) as subprocess:
             proc = MagicMock()
             proc.stdout = self.dig_time_out
@@ -47,7 +47,7 @@ class Test__query_from_authority(unittest.TestCase):
 
     def test__dig_reply(self):
         method = check_dns_sync.query_from_authority
-        mocked = "paulla.check_dns_sync.check_dns_sync.subprocess"
+        mocked = "check_dns_sync.check_dns_sync.subprocess"
         with mock.patch(mocked) as subprocess:
             proc = MagicMock()
             proc.stdout = self.dig_example_com
@@ -80,7 +80,7 @@ class Test__query(unittest.TestCase):
 
     def test_example_com(self):
         method = check_dns_sync.query
-        mocked = "paulla.check_dns_sync.check_dns_sync.subprocess"
+        mocked = "check_dns_sync.check_dns_sync.subprocess"
         with mock.patch(mocked) as subprocess:
             proc = MagicMock()
             proc.stdout = self.dig_example_com
@@ -103,7 +103,7 @@ class Test__CheckDnsSync(unittest.TestCase):
     def test__probe_from_authority(self):
         check = check_dns_sync.CheckDnsSync("example.com")
         check.fromAuthority = True
-        mocked = "paulla.check_dns_sync.check_dns_sync.query_from_authority"
+        mocked = "check_dns_sync.check_dns_sync.query_from_authority"
         with mock.patch(mocked) as query_from_authority:
             query_from_authority.return_value = self.result_example_com
 
@@ -115,7 +115,7 @@ class Test__CheckDnsSync(unittest.TestCase):
     def test__probe_not_sync_from_authority(self):
         check = check_dns_sync.CheckDnsSync("example.com")
         check.fromAuthority = True
-        mocked = "paulla.check_dns_sync.check_dns_sync.query_from_authority"
+        mocked = "check_dns_sync.check_dns_sync.query_from_authority"
         with mock.patch(mocked) as query_from_authority:
             query_from_authority.return_value = self.result_not_sync
             probe = check.probe()
@@ -135,7 +135,7 @@ class Test__CheckDnsSync(unittest.TestCase):
     def test__probe_from_ns(self):
         check = check_dns_sync.CheckDnsSync("example.com", ["8.8.8.8", "8.8.8.8"])
         check.fromAuthority = False
-        mocked = "paulla.check_dns_sync.check_dns_sync.query"
+        mocked = "check_dns_sync.check_dns_sync.query"
         with mock.patch(mocked) as query:
             query.return_value = self.result_ns
             for metric in check.probe():
@@ -146,7 +146,7 @@ class Test__CheckDnsSync(unittest.TestCase):
     def test__probe_not_sync_from_ns(self):
         check = check_dns_sync.CheckDnsSync("example.com", ["8.8.8.8", "8.8.4.4"])
         check.fromAuthority = False
-        mocked = "paulla.check_dns_sync.check_dns_sync.query"
+        mocked = "check_dns_sync.check_dns_sync.query"
         with mock.patch(mocked) as query:
             query.side_effect = [(5, "8.8.8.8"),(10, "8.8.4.4")]
             probe  = check.probe()
@@ -163,7 +163,7 @@ class Test_AuditSummary(unittest.TestCase):
     def test_ok(self):
         from nagiosplugin.result import Result, Results
         from nagiosplugin.state import Ok
-        from paulla.check_dns_sync.check_dns_sync import AuditSummary
+        from check_dns_sync.check_dns_sync import AuditSummary
         results = Results()
         ok_r1 = Result(Ok, '', nagiosplugin.Metric('met1', 0))
         ok_r2 = Result(Ok, '', nagiosplugin.Metric('met1', 0))
@@ -176,7 +176,7 @@ class Test_AuditSummary(unittest.TestCase):
     def test_problem_unknown(self):
         from nagiosplugin.result import Result, Results
         from nagiosplugin.state import Critical, Unknown
-        from paulla.check_dns_sync.check_dns_sync import AuditSummary
+        from check_dns_sync.check_dns_sync import AuditSummary
         hint = "No result. Domain probably does not exist"
         results = Results()
         r1 = Result(Critical, '', nagiosplugin.Metric('met1', 1))
@@ -190,7 +190,7 @@ class Test_AuditSummary(unittest.TestCase):
     def test_problem_crit_metric(self):
         from nagiosplugin.result import Result, Results
         from nagiosplugin.state import Critical
-        from paulla.check_dns_sync.check_dns_sync import AuditSummary
+        from check_dns_sync.check_dns_sync import AuditSummary
         message = "ns1 1 version behind ns2 1 version behind "
         results = Results()
         r1 = Result(Critical, '', nagiosplugin.Metric('ns1', 1, uom=" version behind"))
@@ -204,7 +204,7 @@ class Test_AuditSummary(unittest.TestCase):
     def test_problem_crit_non_metric(self):
         from nagiosplugin.result import Result, Results
         from nagiosplugin.state import Critical
-        from paulla.check_dns_sync.check_dns_sync import AuditSummary
+        from check_dns_sync.check_dns_sync import AuditSummary
         message = "ns1,ns2 are behind"
         results = Results()
         r1 = Result(Critical, '', nagiosplugin.Metric('ns1', 1))
