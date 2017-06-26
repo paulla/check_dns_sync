@@ -114,7 +114,7 @@ def parse_args():
 
 
 @nagiosplugin.guarded
-def main():
+def main(): # pragma: no cover
     args = parse_args()
     check = nagiosplugin.Check(CheckDnsSync(args.zone, args.nameservers, args.fromAuthority),
                                nagiosplugin.ScalarContext("serial", None, '@1:'),
@@ -122,5 +122,5 @@ def main():
     check.main()
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': # pragma: no cover
     main()

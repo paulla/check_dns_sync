@@ -2,6 +2,8 @@ import unittest
 import mock
 from unittest.mock import MagicMock
 
+import sys
+import argparse
 import nagiosplugin
 from nagiosplugin import CheckError
 from nagiosplugin.metric import Metric
@@ -212,3 +214,13 @@ class Test_AuditSummary(unittest.TestCase):
         summary = AuditSummary(False)
         sum_crit = summary.problem(results)
         self.assertEqual(sum_crit, message)
+
+
+class Test__parse_arg(unittest.TestCase):
+    def test__argparser(self):
+        sys.argv = sys.argv[:1]
+        sys.argv.append("-z")
+        sys.argv.append("localhost")
+        args = check_dns_sync.parse_args()
+        self.assertEqual(type(args), argparse.Namespace)
+        self.assertEqual(args.zone, "localhost")
