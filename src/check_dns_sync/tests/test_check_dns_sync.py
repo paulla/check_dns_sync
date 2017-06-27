@@ -1,6 +1,5 @@
 import unittest
 import mock
-from unittest.mock import MagicMock
 
 import sys
 import argparse
@@ -33,9 +32,8 @@ class Test__query_from_authority(unittest.TestCase):
         method = check_dns_sync.query_from_authority
         mocked = "check_dns_sync.check_dns_sync.subprocess"
         with mock.patch(mocked) as subprocess:
-            proc = MagicMock()
-            proc.stdout = self.dig_time_out
-            subprocess.run.return_value = proc
+            stdout = self.dig_time_out
+            subprocess.Popen.return_value.communicate.return_value = stdout,stdout
             with self.assertRaises(CheckError):
                 method("example.com")
 
@@ -49,9 +47,8 @@ class Test__query_from_authority(unittest.TestCase):
         method = check_dns_sync.query_from_authority
         mocked = "check_dns_sync.check_dns_sync.subprocess"
         with mock.patch(mocked) as subprocess:
-            proc = MagicMock()
-            proc.stdout = self.dig_example_com
-            subprocess.run.return_value = proc
+            stdout = self.dig_example_com
+            subprocess.Popen.return_value.communicate.return_value = stdout,stdout
             self.assertEqual(method("example.com"), self.result_example_com)
 
 
@@ -82,10 +79,9 @@ class Test__query(unittest.TestCase):
         method = check_dns_sync.query
         mocked = "check_dns_sync.check_dns_sync.subprocess"
         with mock.patch(mocked) as subprocess:
-            proc = MagicMock()
-            proc.stdout = self.dig_example_com
-            proc.stderr = False
-            subprocess.run.return_value = proc
+            stdout = self.dig_example_com
+            stderr = ""
+            subprocess.Popen.return_value.communicate.return_value = stdout,stderr
             self.assertEqual(method("example.com", "8.8.8.8"), self.result_example_com)
 
 

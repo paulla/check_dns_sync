@@ -15,11 +15,15 @@ parameters = "+short"
 
 def query_from_authority(zone):
     """Send query using external tool to fetch serial from NS servers of the zone"""
-    proc = subprocess.run([executable, zone]+parameters_from_authority.split(),
+    proc = subprocess.Popen([executable, zone]+parameters_from_authority.split(),
                           stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE,
-                          encoding="UTF-8")
-    answers = proc.stdout
+                          stderr=subprocess.PIPE)
+    answers,error = proc.communicate()
+    if not isinstance(answers, str):  # pragma: no cover
+        answers = answers.decode()
+    if not isinstance(error, str):  # pragma: no cover
+        error = error.decode()
+
     if answers.find("timed out") >= 0:
         raise nagiosplugin.CheckError("A server timed out")
     if not len(answers):
@@ -32,15 +36,19 @@ def query_from_authority(zone):
 def query(zone, nameserver):
     """Send query using external tool to fetch serial from provided server"""
     query = "{0} SOA @{1}".format(zone, nameserver)
-    proc = subprocess.run([executable, zone, 'SOA', '@'+nameserver] + parameters.split(),
+    proc = subprocess.Popen([executable, zone, 'SOA', '@'+nameserver] + parameters.split(),
                           stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE,
-                          encoding='UTF-8')
-    answer = proc.stdout
+                          stderr=subprocess.PIPE)
+    answer,error = proc.communicate()
+    if not isinstance(answer, str):  # pragma: no cover
+        answer = answer.decode()
+    if not isinstance(error, str):  # pragma: no cover
+        error = error.decode()
+
     if answer.find("timed out") >= 0:
         raise nagiosplugin.CheckError("%s timed out" % nameserver)
-    if proc.stderr:
-        raise nagiosplugin.CheckError("Dig returned an error: %s" % proc.stderr)
+    if error:
+        raise nagiosplugin.CheckError("Dig returned an error: %s" % error)
     if not len(answer):
         raise nagiosplugin.CheckError("No result. Domain probably does not exist")
 
