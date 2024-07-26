@@ -29,8 +29,16 @@ def query_from_authority(zone):
     if not len(answers):
         raise nagiosplugin.CheckError("No result. Domain probably does not exist")
 
-    answers = answers.strip().splitlines()
-    return [(int(arguments[3]), arguments[10]) for arguments in (answer.split() for answer in answers)]
+    answers = answers.split('\n')
+    returned_answer = []
+    for answer in answers:
+        if len(answer) > 0:
+            if not 'SOA ' in answer:
+                raise nagiosplugin.CheckError(f"No parsable SOA: {answer}")
+            else:
+                answer = answer.split()
+                returned_answer.append((int(answer[3]), answer[10]))
+    return returned_answer
 
 
 def query(zone, nameserver):
